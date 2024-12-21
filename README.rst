@@ -15,7 +15,7 @@
 
 .. class:: center
 
-    :Название исследуемой задачи: style transfer
+    :Название исследуемой задачи: Enhancing Methods for Restorable Arbitrary Style Transfer in Image Stylization
     :Тип научной работы: M1P
     :Автор: Каратыщев Дмитрий Иванович
     :Научный руководитель: к.ф.-м.н., Китов Виктор Владимирович
