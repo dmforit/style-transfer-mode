@@ -17,6 +17,8 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{hyperref}
+\usepackage{svg}
+\usepackage{float}
 
 \title{Enhancing Methods for Restorable Arbitrary Style Transfer in Image Stylization}
 
@@ -37,65 +39,65 @@
     pdftitle={Enhancing Methods for Restorable Arbitrary Style Transfer in Image Stylization},
     pdfsubject={Computer Vision, Image Processing},
     pdfauthor={Karatyshchev Dmitry, Viktor Kitov},
-    pdfkeywords={Image style transfer, Image processing, Neural Networks, Restoration, Loss Functions, LPIPS},
+    pdfkeywords={Image style transfer, Image processing, Neural Networks, Restoration, Loss Functions},
 }
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Image style transfer synthesizes new images by preserving the content of a source image while adopting the style of a reference image. Recent advancements, such as the Restorable Arbitrary Style Transfer (RAST) method, have introduced architectures that enable flexible and reversible style manipulations. This study revisits the RAST architecture, implementing its framework and conducting a series of experiments to evaluate and enhance its performance. Our contributions include an ablation study to assess the significance of various loss components, the introduction of an idempotency loss to enforce consistent style transfer behavior, the application of a multirestoration loss tailored for low-resolution images, and the integration of the Learned Perceptual Image Patch Similarity (LPIPS) loss to improve perceptual quality. Additionally, we explore architectural simplifications by isolating specific components of the original model. Experimental results demonstrate the strengths and limitations of these modifications, providing insights for future improvements in arbitrary style transfer techniques.
+Image style transfer synthesizes new images by preserving the content of a source image while adopting the style of a reference image. Recent advancements, such as the Restorable Arbitrary Style Transfer (RAST) method, have introduced architectures that enable flexible and reversible style manipulations. This study revisits the RAST architecture, implementing its framework and conducting a series of experiments to evaluate and enhance its performance. Our contributions include an ablation study to assess the significance of various loss components, the introduction of an idempotency loss to enforce consistent style transfer behavior, and the application of a multirestoration loss tailored for low-resolution images. Additionally, we explore architectural simplifications by isolating specific components of the original model. Experimental results demonstrate the strengths and limitations of these modifications, providing insights for future improvements in arbitrary style transfer techniques.
 \end{abstract}
 
-\keywords{Image style transfer \and Image processing \and Neural Networks \and Restoration \and Loss Functions \and LPIPS}
+\keywords{Image style transfer \and Image processing \and Neural Networks \and Restoration \and Loss Functions}
 
 \section{Introduction}
 \label{sec:introduction}
 
-Image style transfer has become a cornerstone in computer vision, enabling the transformation of images by blending the content of one image with the artistic style of another \cite{Gatys2016}. This technology finds applications in digital art creation, photo editing, and enhancing visual content for virtual environments \cite{Johnson2016, Huang2017}. The primary challenge in style transfer lies in effectively separating and recombining content and style representations to produce visually appealing results without introducing artifacts or losing essential content details \cite{Li2017, Johnson2016}.
+In the realm of computer vision, image style transfer stands out as a pivotal technique, enabling the seamless blending of content from one image with the artistic style of another. This capability has vast applications, ranging from digital art creation and photo editing to enhancing visual content for virtual and augmented reality environments. The core challenge lies in effectively disentangling content and style representations to achieve visually appealing results without compromising essential content details or introducing artifacts \cite{Li2017}.
 
-Early methods, such as those proposed by Gatys et al. \cite{Gatys2016}, utilized convolutional neural networks (CNNs) to extract and manipulate feature representations, laying the groundwork for neural style transfer. While these optimization-based techniques achieved high-quality stylization, they were computationally intensive and unsuitable for real-time applications \cite{Gatys2016}. To address this limitation, Johnson et al. \cite{Johnson2016} introduced perceptual loss functions for training feed-forward networks, enabling real-time style transfer with significant improvements in computational efficiency.
+Early methodologies, notably those introduced by Gatys et al. \cite{Gatys2016}, leveraged convolutional neural networks (CNNs) to extract and manipulate feature representations, laying the foundation for neural style transfer. While these optimization-based approaches produced high-quality stylizations, their computational intensity rendered them impractical for real-time applications. Addressing this, Johnson et al. \cite{Johnson2016} proposed perceptual loss functions for training feed-forward networks, enabling real-time style transfer with enhanced computational efficiency.
 
-However, these feed-forward approaches were constrained to a fixed set of styles, requiring separate models for each new style, which posed scalability challenges \cite{Johnson2016}. This limitation spurred the development of arbitrary style transfer methods, such as Adaptive Instance Normalization (AdaIN) \cite{Huang2017} and Whitening and Coloring Transform (WCT) \cite{Li2017}. These methods dynamically adjust the feature statistics of the content image to match those of the style image, allowing for versatile and flexible style applications without retraining the model \cite{Huang2017, Li2017}.
+Despite these advancements, feed-forward approaches were limited to a predefined set of styles, necessitating separate models for each new style and posing significant scalability challenges. This limitation catalyzed the development of arbitrary style transfer methods, such as Adaptive Instance Normalization (AdaIN) \cite{Huang2017} and Whitening and Coloring Transform (WCT) \cite{Li2017}. These techniques dynamically adjust feature statistics to align content and style representations, facilitating versatile and flexible style applications without the need for retraining the model.
 
-Building upon these advancements, the Restorable Arbitrary Style Transfer (RAST) framework introduced by Ma et al. \cite{Ma2023RAST} offers a novel approach that not only performs style transfer but also ensures the ability to restore the original content from the stylized image. This reversible transformation addresses a critical challenge in style transfer—maintaining a bidirectional relationship between content and style \cite{CycleGAN2017, Ma2023RAST}. RAST achieves this through a multi-restoration mechanism, enhancing the model's capacity to preserve content details while effectively transferring style attributes \cite{Ma2023RAST}.
+Building upon these foundations, the Restorable Arbitrary Style Transfer (RAST) framework introduced by Ma et al. \cite{Ma2023RAST} presents a novel approach that not only performs style transfer but also ensures the ability to restore the original content from the stylized image. This reversible transformation addresses a critical challenge in style transfer—maintaining a bidirectional relationship between content and style \cite{CycleGAN2017}. RAST achieves this through a multi-restoration mechanism, enhancing the model's capacity to preserve content details while effectively transferring style attributes.
 
-Despite the progress made by RAST, there remain areas for improvement, particularly in optimizing the loss functions and architectural components to enhance performance and robustness \cite{Liu2020, Wang2020}. This study aims to extend the RAST framework by conducting a comprehensive ablation study to identify critical loss components, introducing an idempotency loss to enforce consistent style transfer behavior \cite{SomeOtherPaper}, adapting the multirestoration loss for low-resolution images \cite{Li2018}, and integrating the LPIPS loss to enhance perceptual quality \cite{Zhang2018LPIPS}. Additionally, we explore architectural simplifications to streamline the model without compromising performance \cite{Vazquez2018}. Through these enhancements, we seek to refine the capabilities of restorable arbitrary style transfer, providing deeper insights and laying the groundwork for future advancements in this domain.
+While RAST represents a significant stride in arbitrary style transfer, opportunities for further enhancement remain, particularly in optimizing loss functions and architectural components to bolster performance and robustness \cite{Liu2020, Wang2020}. This study aims to extend the RAST framework by conducting a comprehensive ablation study to identify critical loss components, introducing an idempotency loss to enforce consistent style transfer behavior \cite{SomeOtherPaper}, adapting the multirestoration loss for low-resolution images \cite{Li2018}, and exploring architectural simplifications to streamline the model without compromising performance \cite{Vazquez2018}. Through these targeted modifications, we aim to refine the capabilities of restorable arbitrary style transfer, setting the stage for more advanced and reliable style transfer techniques.
 
 \section{Related Work}
 \label{sec:related_work}
 
-Image style transfer has been extensively researched, evolving from optimization-based methods to sophisticated neural network architectures. The pioneering work by Gatys et al. \cite{Gatys2016} demonstrated that CNNs could effectively disentangle and recombine content and style representations using feature maps extracted from pre-trained networks. This approach, while producing high-quality stylized images, was limited by its computational demands and lack of real-time applicability \cite{Gatys2016}.
+The landscape of image style transfer has evolved remarkably, transitioning from rudimentary optimization-based methods to sophisticated neural network architectures. Gatys et al. \cite{Gatys2016} pioneered the use of CNNs to disentangle and recombine content and style representations through feature maps extracted from pre-trained networks. This seminal work, while achieving high-quality stylizations, was hampered by its computational demands and lack of real-time applicability.
 
-To overcome these limitations, feed-forward network approaches were developed. Johnson et al. \cite{Johnson2016} introduced perceptual loss functions that enabled the training of feed-forward networks for real-time style transfer. This method significantly reduced computational overhead, allowing for instantaneous stylization \cite{Johnson2016}. However, it was restricted to a fixed set of styles, requiring retraining for each new style, which limited its scalability \cite{Johnson2016}.
+To mitigate these limitations, feed-forward network approaches emerged. Johnson et al. \cite{Johnson2016} introduced perceptual loss functions that facilitated the training of feed-forward networks for real-time style transfer, significantly reducing computational overhead and enabling instantaneous stylization. However, this method was constrained to a fixed set of styles, necessitating retraining for each new style and thereby limiting scalability.
 
-The demand for more flexible style transfer methods led to the development of arbitrary style transfer techniques. Huang and Tseng \cite{Huang2017} proposed Adaptive Instance Normalization (AdaIN), which adjusts the mean and variance of content features to match those of style features, facilitating arbitrary style transfer without retraining. Similarly, Li et al. \cite{Li2017} introduced Whitening and Coloring Transform (WCT), which aligns the covariance of content features with style features, allowing for dynamic and versatile style applications \cite{Huang2017, Li2017}.
+The quest for more flexible style transfer methods led to the advent of arbitrary style transfer techniques. Huang and Tseng \cite{Huang2017} proposed Adaptive Instance Normalization (AdaIN), which adjusts the mean and variance of content features to align with style features, enabling arbitrary style transfer without the need for retraining. Similarly, Li et al. \cite{Li2017} introduced the Whitening and Coloring Transform (WCT), which aligns the covariance of content features with style features, allowing for dynamic and versatile style applications.
 
-In parallel, other researchers explored different aspects to enhance style transfer. For example, CycleGAN \cite{CycleGAN2017} introduced cycle consistency loss to enable unpaired image-to-image translation, ensuring that the transformed image could be reverted to its original form. This concept inspired reversible style transfer mechanisms, such as those implemented in RAST \cite{Ma2023RAST}.
+Concurrently, other researchers explored various dimensions to enhance style transfer. CycleGAN \cite{CycleGAN2017} introduced cycle consistency loss, enabling unpaired image-to-image translation and ensuring that transformed images could revert to their originals. This concept inspired reversible style transfer mechanisms, such as those implemented in RAST \cite{Ma2023RAST}.
 
-Restorable style transfer methods like RAST \cite{Ma2023RAST} incorporate restoration mechanisms to ensure that the original content can be recovered from the stylized image. This bidirectional capability addresses the reversibility challenge in style transfer, enhancing the model's robustness and reliability \cite{CycleGAN2017, Ma2023RAST}.
+Restorable style transfer methods like RAST incorporate restoration mechanisms to guarantee that the original content can be recovered from the stylized image. This bidirectional capability addresses the reversibility challenge in style transfer, enhancing the model's robustness and reliability.
 
-Additional constraints and loss functions have been proposed to improve style transfer quality and consistency. Idempotency constraints, as discussed in \cite{SomeOtherPaper}, aim to ensure that applying the style transfer operation multiple times yields consistent results. Multiresolution strategies \cite{Li2018, Fernandez2019} have also been employed to handle varying image scales effectively, improving the model's adaptability to different resolutions. The Learned Perceptual Image Patch Similarity (LPIPS) metric \cite{Zhang2018LPIPS} has been utilized to assess and optimize the perceptual similarity between images, providing a more nuanced evaluation compared to traditional metrics \cite{Wang2019}.
+Further enhancements in style transfer quality and consistency have been achieved through additional constraints and loss functions. Idempotency constraints aim to ensure that applying the style transfer operation multiple times yields consistent results. Multiresolution strategies \cite{Li2018, Fernandez2019} have been employed to handle varying image scales effectively, improving the model's adaptability to different resolutions.
 
-Generative Adversarial Networks (GANs) \cite{Goodfellow2014} have played a significant role in advancing image synthesis and style transfer, with various architectures such as CycleGAN \cite{CycleGAN2017}, StyleGAN \cite{StyleGAN2019}, and others contributing to the field's progress. Transformer-based models \cite{Dosovitskiy2020} have also been explored for their potential in image generation tasks, offering alternative approaches to CNN-based methods.
+Generative Adversarial Networks (GANs) \cite{Goodfellow2014} have significantly contributed to advancing image synthesis and style transfer, with architectures such as CycleGAN \cite{CycleGAN2017} and StyleGAN \cite{StyleGAN2019} driving the field forward. Additionally, transformer-based models \cite{Dosovitskiy2020} have been explored for their potential in image generation tasks, offering alternative approaches to traditional CNN-based methods.
 
-Comprehensive surveys, such as those by Prajapati et al. \cite{Prajapati2020}, Vazquez et al. \cite{Vazquez2018}, and Wang et al. \cite{Wang2020}, provide extensive overviews of the evolution and current state of style transfer techniques, highlighting the challenges and opportunities for future research.
+Comprehensive surveys by Prajapati et al. \cite{Prajapati2020}, Vazquez et al. \cite{Vazquez2018}, and Wang et al. \cite{Wang2020} provide extensive overviews of the evolution and current state of style transfer techniques, highlighting ongoing challenges and opportunities for future research.
 
-In summary, the field of image style transfer has witnessed significant advancements from optimization-based methods to neural network-driven approaches, with ongoing research focusing on enhancing flexibility, efficiency, and reversibility. The RAST framework represents a notable contribution by introducing restoration capabilities, and this study aims to further enhance its performance through targeted modifications and comprehensive evaluations \cite{Ma2023RAST, Johnson2016, Gatys2016, Huang2017, Li2017, CycleGAN2017, Liu2020, SomeOtherPaper, Li2018, Zhang2018LPIPS, Wang2019, Prajapati2020, Vazquez2018, Wang2020}.
+In summary, the field of image style transfer has witnessed significant advancements, evolving from optimization-based methods to neural network-driven approaches. Ongoing research continues to focus on enhancing flexibility, efficiency, and reversibility. The RAST framework represents a notable contribution by introducing restoration capabilities, and this study seeks to further augment its performance through targeted modifications and comprehensive evaluations, with a particular emphasis on experimental validation.
 
 \section{Proposed Method}
 \label{sec:proposed_method}
 
-In this section, we detail the enhancements and modifications applied to the original Restorable Arbitrary Style Transfer (RAST) architecture. Our approach focuses on improving the model's performance and robustness through various experimental adjustments, as outlined below.
+This section delineates the enhancements and modifications introduced to the original Restorable Arbitrary Style Transfer (RAST) architecture. Our approach is meticulously designed to amplify the model's performance and robustness, with a strategic focus on the experimental evaluation that forms the crux of our study. The proposed modifications are structured to seamlessly integrate with the RAST framework, thereby facilitating a comprehensive assessment through our experimental results.
 
 \subsection{Ablation Study}
 To understand the contribution of each loss component in the RAST framework, we conducted an ablation study. The original RAST model employs multiple loss functions, including content loss, style loss, restoration loss, and adversarial loss. In our ablation study, we systematically removed each loss component to evaluate its impact on the style transfer quality and restoration capability \cite{Liu2019, He2016}.
 
 Formally, let the total loss \( \mathcal{L} \) be defined as:
 \[
-\mathcal{L} = \lambda_c L_c + \lambda_s L_s + \lambda_r L_r + \lambda_a L_a
+\mathcal{L} = \lambda_{contra} L_{contra} + \lambda_{identity} L_{identity} + \lambda_{diff} L^{-1}_{diff} + \lambda_{multi} L_{multi} + \lambda_{adv} L_{adv}
 \]
-where \( L_c \), \( L_s \), \( L_r \), and \( L_a \) denote the content, style, restoration, and adversarial losses, respectively, and \( \lambda \) terms are their corresponding weights \cite{Fernandez2019}.
+where $L_{contra}, L_{identity}, L^{-1}_{diff}, L_{multi}, L_{adv}$ denote the contrastive, identity, style difference, multi restoration, and adversarial losses, respectively, and \( \lambda \) terms are their corresponding weights.
 
 \subsection{Idempotency Loss}
 We introduced an \textbf{Idempotency Loss} to enforce consistency in the style transfer operation. The idea is to ensure that applying the style transfer multiple times with the same style image does not alter the result after the first application. Mathematically, this can be expressed as:
@@ -109,150 +111,86 @@ L_{\text{id}} = \| T(T(I_c, I_s), I_s) - T(I_c, I_s) \|^2
 This loss encourages the model to produce consistent stylized images across multiple applications, enhancing the stability and reliability of the style transfer process \cite{SomeOtherPaper}.
 
 \subsection{Multirestoration Loss for Low-Resolution Images}
-The original RAST model employs a multirestoration loss to facilitate the restoration of the original content from the stylized image. We adapted this loss to specifically target low-resolution images, addressing the challenges associated with limited pixel information \cite{Li2018}. The multirestoration loss \( L_{\text{mr}} \) was adapted to specifically target low-resolution images. It ensures restoration quality across different scales:
-\[
-L_{\text{mr}} = \sum_{s} \| R(S(T(I_s))) - I_c \|^2
-\]
-where \( S \) represents scaling, \( R \) is the restoration operation, \( T \) is the transformation, \( I_s \) is the stylized image, and \( I_c \) is the original content image \cite{Liu2019, Fernandez2019}.
+The original RAST model employs a multirestoration loss to facilitate the restoration of the original content from the stylized image. However, when dealing with low-resolution images, the standard multirestoration loss can lead to excessive colorization, which degrades the quality of the style transfer. To address this issue, we adapted the multirestoration loss specifically for low-resolution scenarios, ensuring that the stylization process does not overly alter the color distribution and maintains high visual fidelity \cite{Li2018}.
 
-\subsection{Learned Perceptual Image Patch Similarity (LPIPS) Loss}
-To further enhance the perceptual quality of the stylized images, we integrated the \textbf{Learned Perceptual Image Patch Similarity (LPIPS)} loss \cite{Zhang2018LPIPS}. LPIPS measures the perceptual similarity between two images by comparing deep features extracted from a pre-trained network, providing a more aligned metric with human visual perception compared to traditional pixel-wise losses \cite{Wang2019}.
-
-The LPIPS loss \( L_{\text{LPIPS}} \) is defined as:
+The adapted multirestoration loss \( L_{\text{mr\_low\_res}} \) is designed to enforce restoration quality across multiple scales while mitigating the risk of strong colorization. This is achieved by incorporating a weighting mechanism that emphasizes restoration accuracy at lower resolutions:
 \[
-L_{\text{LPIPS}}(I_{\text{stylized}}, I_{\text{target}}) = \text{LPIPS}(I_{\text{stylized}}, I_{\text{target}})
+L_{\text{multi\_low\_res}} = L_{multi}(\textit{LowRes}(I_c), \textit{LowRes}(I_c))
 \]
-where \( I_{\text{stylized}} \) is the output of the style transfer model, and \( I_{\text{target}} \) is the desired target image (either the content or style image, depending on the context). In our framework, we incorporate LPIPS loss to optimize the perceptual similarity between the stylized image and the content/style reference, thereby improving the visual coherence and quality of the output images \cite{Zhang2018LPIPS, Wang2019}.
+where \textit{LowRes} is a low-resolution function.
 
 \subsection{Architectural Simplification}
 To investigate the impact of the RAST architecture's components, we performed an architectural simplification by retaining only the essential modules responsible for style transfer and restoration \cite{Vazquez2018}. This modification aims to assess the necessity of certain architectural elements and their contribution to the overall performance. By simplifying the architecture, we aim to identify potential redundancies and streamline the model for improved efficiency \cite{Fernandez2019}.
 
 \subsection{Overall Objective Function}
-Combining all the aforementioned components, the overall objective function \( \mathcal{L} \) for our enhanced RAST model is formulated as:
+Combining all the mentioned components, the overall objective function \( \mathcal{L} \) for our enhanced RAST model is formulated as:
 
 \[
-\mathcal{L} = \lambda_c L_c + \lambda_s L_s + \lambda_r L_r + \lambda_a L_a + \lambda_{\text{id}} L_{\text{id}} + \lambda_{\text{mr}} L_{\text{mr}} + \lambda_{\text{LPIPS}} L_{\text{LPIPS}}
+\mathcal{L} = \lambda_{contra} L_{contra} + \lambda_{identity} L_{identity} + \lambda_{diff} L^{-1}_{diff} + \lambda_{multi\_low\_res} L_{multi\_low\_res} + \lambda_{adv} L_{adv} + \lambda_{idemp} L_{idemp}
 \]
 
-where \( \lambda_c, \lambda_s, \lambda_r, \lambda_a, \lambda_{\text{id}}, \lambda_{\text{mr}}, \lambda_{\text{LPIPS}} \) are weights for content, style, restoration, adversarial, idempotency, multirestoration, and LPIPS losses, respectively \cite{He2016, Zhang2018LPIPS}.
-
-Here, the \( \lambda \) terms are the weighting factors for each loss component, allowing us to balance their contributions during the training process. The inclusion of the idempotency, multirestoration, and LPIPS losses aims to enhance consistency, restoration quality, and perceptual similarity, particularly in low-resolution scenarios \cite{Liu2020, Li2018, Zhang2018LPIPS}.
+Here, the \( \lambda \) terms are the weighting factors for each loss component, allowing us to balance their contributions during the training process.
 
 \section{Experimental Results}
 \label{sec:experimental_results}
 
-To evaluate the effectiveness of our proposed enhancements to the RAST architecture, we conducted a series of experiments. This section presents the experimental setup, the results obtained from each experiment, and an analysis of these results.
+To evaluate the effectiveness of the proposed enhancements to the RAST framework, we conducted a series of experiments focusing on the ablation study, the impact of the idempotency loss, the adaptation of the multirestoration loss for low-resolution images, and the architectural simplifications. The experiments were performed on the \textit{MS-COCO} and \textit{WikiArt} datasets for content images and a diverse set of artistic styles for style images. All models were trained under identical conditions to ensure a fair comparison.
 
-\subsection{Experimental Setup}
-All experiments were implemented in a Jupyter Notebook environment using Python and PyTorch \cite{Paszke2019}. We utilized the MS-COCO dataset \cite{MSCOCO2014} for training and evaluation, ensuring a diverse range of content and style images \cite{Lin2014}. The preprocessing steps followed the guidelines outlined in the original RAST paper to maintain comparability \cite{Ma2023RAST}. The model was trained using the Adam optimizer with a learning rate of \(1 \times 10^{-4}\) \cite{Kingma2014}, and training was conducted for 200 epochs. The weighting factors for the loss components were set based on preliminary experiments to balance the contributions effectively \cite{He2016}.
+\subsection{Ablation Study}
+The ablation study aimed to determine the contribution of each loss component to the overall performance of the style transfer model. We systematically removed each loss term from the total loss function and observed that each loss is important. Results with removed multi restoration loss are shown in the following figure \ref{fig:ablation}
 
-\subsection{Ablation Study Results}
-The ablation study involved removing each loss component individually and observing the impact on the stylization and restoration quality. Table \ref{tab:ablation_study} summarizes the results.
-
-\begin{table}[ht]
+\begin{figure}[H]
     \centering
-    \caption{Ablation Study Results}
-    \label{tab:ablation_study}
-    \begin{tabular}{|c|c|c|c|}
-        \hline
-        \textbf{Loss Removed} & \textbf{Stylization Quality} & \textbf{Restoration Quality} & \textbf{LPIPS Score} \\
-        \hline
-        Content Loss & \textcolor{red}{Degraded} & Maintained & Increased \\
-        Style Loss & Maintained & \textcolor{red}{Degraded} & Increased \\
-        Restoration Loss & \textcolor{red}{Degraded} & \textcolor{red}{Significantly Degraded} & Increased \\
-        Adversarial Loss & Slight Degradation & Maintained & Slightly Increased \\
-        \textbf{Idempotency Loss} & \textcolor{red}{Degraded} & Maintained & Increased \\
-        \textbf{LPIPS Loss} & Maintained & Maintained & Decreased \\
-        \hline
-    \end{tabular}
-\end{table}
+    \includegraphics[width=0.7\textwidth]{figures/ablation_results.png}
+    \caption{Removed multi restoration loss}
+    \label{fig:ablation}
+\end{figure}
 
-\textbf{Analysis}: The ablation study indicates that the restoration loss is crucial for maintaining high-quality restoration, while the content and style losses significantly affect the stylization quality. Removing the adversarial loss leads to minor degradations, suggesting it plays a supportive role in enhancing the realism of the stylized images. The introduction of the LPIPS loss effectively reduces the perceptual difference between the stylized and target images, as evidenced by the decreased LPIPS score, indicating improved perceptual quality \cite{Zhang2018LPIPS}. However, the removal of the idempotency and LPIPS losses results in increased LPIPS scores, highlighting their importance in maintaining visual fidelity \cite{Wang2019}.
 
 \subsection{Idempotency Loss Impact}
-Introducing the idempotency loss aimed to ensure consistency in repeated style transfer applications. However, our experiments revealed that incorporating this loss negatively impacted the stylization quality. Figure \ref{fig:idempotency_results} illustrates the comparative results.
+The introduction of the idempotency loss was designed to ensure consistent stylization across multiple applications. To assess its effectiveness, we applied the style transfer operation twice on the same content image using the same style image and compared the results with and without the idempotency loss.
 
-\begin{figure}[ht]
+\textbf{Results:} Figures ~\ref{fig:idempotency_result} and ~\ref{fig:without_idempotency_result} shows the difference between models trained with and without the idempotency loss. Without $L_{idemp}$, the second application of style transfer introduced subtle changes in style intensity and minor artifacts, indicating instability in the transformation. In contrast, the model incorporating the idempotency loss produced identical stylized images upon repeated applications, demonstrating enhanced consistency and reliability in the style transfer process.
+
+\begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/idempotency_results.png}
-    \caption{Comparison of Style Transfer with and without Idempotency Loss}
-    \label{fig:idempotency_results}
+    \includegraphics[width=0.7\textwidth]{figures/idempotency.png}
+    \caption{Stylization with $L_{idemp}$}
+    \label{fig:idempotency_result}
 \end{figure}
 
-\textbf{Observation}: The stylized images with idempotency loss exhibited artifacts and less coherent style patterns, indicating that the idempotency constraint may conflict with other loss objectives, potentially leading to over-regularization \cite{SomeOtherPaper}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/without_idempotency.png}
+    \caption{Stylization without $L_{idemp}$}
+    \label{fig:without_idempotency_result}
+\end{figure}
 
 \subsection{Multirestoration Loss for Low-Resolution Images}
-Adapting the multirestoration loss for low-resolution images showed promising results in maintaining restoration quality despite reduced image details. Table \ref{tab:multirestoration_low_res} presents the restoration metrics for low-resolution scenarios.
+To evaluate the effectiveness of the adapted multirestoration loss for low-resolution images, we conducted experiments on images resized to $32 \times 32$ pixels. Despite modifications tailored for low-resolution scenarios, the results were unsatisfactory. The restored images exhibited noticeable artifacts and significant color deviations from the original content. Moreover, the stylized outputs often failed to maintain the desired level of detail and visual coherence.
 
-\begin{table}[ht]
+\begin{figure}[H]
     \centering
-    \caption{Restoration Metrics with Multirestoration Loss for Low-Resolution Images}
-    \label{tab:multirestoration_low_res}
-    \begin{tabular}{|c|c|c|}
-        \hline
-        \textbf{Resolution} & \textbf{With Multirestoration Loss} & \textbf{Without Multirestoration Loss} \\
-        \hline
-        256x256 & 0.85 & 0.78 \\
-        128x128 & 0.80 & 0.70 \\
-        64x64 & 0.75 & 0.65 \\
-        \hline
-    \end{tabular}
-\end{table}
-
-\textbf{Interpretation}: The enhanced multirestoration loss consistently improved restoration accuracy across all tested resolutions, highlighting its effectiveness in low-resolution contexts by preserving essential content details even when pixel information is limited \cite{Li2018, Fernandez2019}.
-
-\subsection{LPIPS Loss Impact}
-The integration of the LPIPS loss was aimed at improving the perceptual quality of the stylized images. We evaluated the impact of LPIPS loss by comparing models trained with and without this loss component. Table \ref{tab:lpips_results} summarizes the quantitative results, while Figure \ref{fig:lpips_results} provides a qualitative comparison.
-
-\begin{table}[ht]
-    \centering
-    \caption{LPIPS Score Comparison}
-    \label{tab:lpips_results}
-    \begin{tabular}{|c|c|}
-        \hline
-        \textbf{Model} & \textbf{LPIPS Score} \\
-        \hline
-        RAST Baseline & 0.45 \\
-        RAST + LPIPS & 0.30 \\
-        \hline
-    \end{tabular}
-\end{table}
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=\linewidth]{figures/lpips_comparison.png}
-    \caption{Qualitative Comparison of Stylized Images with and without LPIPS Loss}
-    \label{fig:lpips_results}
+    \includegraphics[width=0.7\textwidth]{figures/lowres.png}
+    \caption{Stylization and restoration results for low-resolution images ($32 \times 32$ pixels). Both the baseline and enhanced models perform poorly, with significant artifacts and color distortions.}
+    \label{fig:lowres_results}
 \end{figure}
 
-\textbf{Findings}: Incorporating the LPIPS loss significantly reduced the LPIPS score from 0.45 to 0.30, indicating a substantial improvement in perceptual similarity between the stylized images and the target references. Qualitative assessments also revealed that images generated with LPIPS loss exhibited more coherent and visually appealing style patterns, with fewer perceptual artifacts compared to the baseline \cite{Zhang2018LPIPS, Wang2019}.
-
-\subsection{Architectural Simplification Results}
-By retaining only the essential components of the original RAST architecture, we observed a trade-off between model complexity and performance. Figure \ref{fig:architecture_simplification} showcases the stylization results from the simplified architecture compared to the full model.
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=\linewidth]{figures/architecture_simplification.png}
-    \caption{Stylization Results: Full RAST Model vs. Simplified Architecture}
-    \label{fig:architecture_simplification}
-\end{figure}
-
-\textbf{Findings}: The simplified architecture demonstrated faster inference times with a marginal decrease in stylization quality, suggesting potential for lightweight applications where computational resources are limited. This trade-off indicates that while certain architectural components may be redundant, they contribute to the overall quality and robustness of the model \cite{Vazquez2018, Fernandez2019}.
-
-\subsection{Qualitative Analysis}
-Overall, the experiments reveal that while certain modifications enhance specific aspects of the RAST model, others may introduce challenges. The ablation study underscores the importance of each loss component, the idempotency loss presents stability benefits at the cost of stylization quality, and the multirestoration loss proves beneficial for low-resolution image restoration. The integration of the LPIPS loss significantly improves perceptual quality, making the stylized images more visually appealing. Architectural simplification offers efficiency gains with acceptable performance trade-offs. The combination of these enhancements provides a more robust and versatile style transfer model, though careful balancing of loss components is essential to maintain overall performance \cite{He2016, Karras2020}.
+\subsection{Architectural Simplification}
+We explored the impact of simplifying the RAST architecture by removing non-essential components. The simplified model retained only the core modules responsible for style transfer and restoration. The results are not satisfactory. For instance, changing the encoder module to pretrained EfficientNet \cite{tan2020efficientnetrethinkingmodelscaling} leads to lightening the model but does affect the results poorly.
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-In this study, we revisited the Restorable Arbitrary Style Transfer (RAST) framework, implementing its architecture and exploring various enhancements to improve its performance and versatility. Through a comprehensive ablation study, we identified the critical role of each loss component in balancing stylization and restoration quality. The introduction of an idempotency loss aimed to enforce consistent style transfer behavior, although it introduced challenges in maintaining high-quality stylization. Adapting the multirestoration loss for low-resolution images successfully enhanced restoration accuracy under constrained conditions. Additionally, integrating the LPIPS loss significantly improved the perceptual quality of the stylized images, making them more aligned with human visual perception. Simplifying the RAST architecture demonstrated potential for achieving efficiency gains with minimal impact on performance.
+In this study, we explored various enhancements to the Restorable Arbitrary Style Transfer (RAST) framework with the objective of improving the quality, consistency, and efficiency of image style transfer. Through a comprehensive experimental evaluation, we assessed the impact of different loss components and architectural modifications on the model's performance.
 
-Our experimental results provide valuable insights into the mechanics of restorable arbitrary style transfer and highlight areas for future research. Further exploration into loss function optimization and architectural innovations could lead to more robust and versatile style transfer models. Additionally, addressing the challenges introduced by idempotency constraints and further leveraging perceptual metrics like LPIPS may pave the way for more stable and reliable style transfer applications \cite{Ma2023RAST, Zhang2018LPIPS, Wang2019}.
+Among the proposed enhancements, the introduction of the \textbf{Idempotency Loss} emerged as the only modification that yielded the desired improvements. This loss effectively enforced consistent style transfer behavior, ensuring that repeated applications of the style transfer operation with the same style image produced stable and identical results. The incorporation of the idempotency loss not only enhanced the reliability of the model but also increased user trust in the stylization process by mitigating inconsistencies and artifacts associated with multiple stylization passes.
 
-\section*{Acknowledgments}
-We would like to thank the contributors of the original RAST framework and the open-source community for providing the tools and resources essential for this research. Special thanks to our colleagues at Lomonosov Moscow State University and Plekhanov Russian University of Economics for their invaluable support and feedback.
+In conclusion, the introduction of the idempotency loss represents a significant advancement in the RAST framework, successfully addressing the challenge of consistent and reliable style transfer. While other modifications did not meet the desired performance criteria, the positive results from the idempotency loss highlight its importance and potential for further refinement. Future work may focus on enhancing the idempotency loss mechanism, exploring alternative approaches to improve low-resolution stylization, and investigating additional architectural optimizations to build upon the strengths demonstrated by the idempotency loss.
 
-\bibliographystyle{unsrt}  % Keeps the references in order of appearance
+By concentrating on the aspects that proved effective, this study provides a clear pathway for future research aimed at developing more robust and consistent arbitrary style transfer models.
+
+\bibliographystyle{unsrt}
 \bibliography{references}
 
 \end{document}
